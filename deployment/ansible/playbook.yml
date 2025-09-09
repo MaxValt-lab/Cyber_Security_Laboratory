@@ -1,0 +1,32 @@
+---
+- name: Deploy Cyber Security System
+  hosts: all
+  become: yes
+  
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install security packages
+      package:
+        name:
+          - ufw
+          - fail2ban
+          - rkhunter
+        state: present
+
+    - name: Configure firewall
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - 80
+        - 443
+        - 22
+
+    - name: Enable UFW
+      ufw:
+        state: enabled
