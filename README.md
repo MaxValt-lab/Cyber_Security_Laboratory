@@ -34,68 +34,6 @@
 
 ---
 
-## 🗂 Структура проекта
-
-### Дерево проекта
-
-Cyber_Security_Laboratory/
-├── compliance/
-│ ├── FSTEC/
-│ ├── FSBS/
-│ ├── MVD/
-│ └── GOST/
-├── deployment/
-│ ├── terraform/
-│ ├── ansible/
-│ ├── docker/
-│ └── k8s/
-├── observability/
-│ ├── prometheus/
-│ ├── grafana/
-│ └── elk/
-├── secrets/
-│ ├── templates/
-│ └── policies/
-├── third_party/
-│ ├── sdk/
-│ └── libraries/
-├── security/
-│ ├── policies/
-│ ├── scans/
-│ └── tests/
-├── examples/
-│ ├── quickstart/
-│ └── demos/
-├── common/
-│ ├── src/
-│ ├── include/
-│ ├── i18n/
-│ ├── docs/
-│ ├── compliance/
-│ ├── tests/
-│ │ ├── unit/
-│ │ ├── integration/
-│ │ └── mocks/
-│ ├── logging/
-│ └── build/
-├── vision-le/
-│ ├── lite/
-│ ├── base/
-│ ├── pro²/
-│ └── pro³/
-├── collaboration/
-│ └── chat/
-├── tools/
-├── ci/
-│ ├── azure-pipelines.yml
-│ ├── .gitlab-ci.yml
-│ └── jenkinsfile
-├── docs/
-├── CHANGELOG.md
-├── VERSION
-├── README.md
-├── LICENSE
-└── build-all.sh
 ## 🚀 Быстрый старт
 
 ```bash
@@ -106,4 +44,4 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements-dev.txt
 pre-commit install
 pre-commit run --all-files
-                           |
+
