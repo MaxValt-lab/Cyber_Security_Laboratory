@@ -91,3 +91,16 @@ jobs:
       - name: Run full Makefile pipeline
         run: |
           make all
+          
+          release:
+              @echo "🔢 Bumping version..."
+              python tools/bump_version.py
+
+              @echo "📜 Generating changelog..."
+              git log --pretty=format:"- %s (%h)" $(git describe --tags --abbrev=0)..HEAD > CHANGELOG.md
+
+              @echo "🏷 Creating tag..."
+              git add VERSION CHANGELOG.md
+              git commit -m "chore(release): bump version and changelog"
+              git tag -a v$(cat VERSION) -m "Release v$(cat VERSION)"
+              git push origin master --tags
