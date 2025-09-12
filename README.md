@@ -96,83 +96,14 @@ Cyber_Security_Laboratory/
 ├── README.md
 ├── LICENSE
 └── build-all.sh
+## 🚀 Быстрый старт
 
-### Mindmap (Mermaid)
-
-```mermaid
-mindmap
-  root((Cyber_Security_Laboratory))
-    compliance
-      FSTEC
-      FSBS
-      MVD
-      GOST
-    deployment
-      terraform
-      ansible
-      docker
-      k8s
-    observability
-      prometheus
-      grafana
-      elk
-    secrets
-      templates
-      policies
-    third_party
-      sdk
-      libraries
-    security
-      policies
-      scans
-      tests
-    examples
-      quickstart
-      demos
-    common
-      src
-      include
-      i18n
-      docs
-      compliance
-      tests
-        unit
-        integration
-        mocks
-      logging
-      build
-    vision-le
-      lite
-      base
-      pro²
-      pro³
-    collaboration
-      chat
-    tools
-    ci
-      azure-pipelines.yml
-      gitlab-ci.yml
-      jenkinsfile
-    docs
-    root_files
-      changelog.md
-      version
-      readme.md
-      license
-      build-all.sh
-      
-| Директория       | Назначение                                                              |
-| ---------------- | ----------------------------------------------------------------------- |
-| `compliance/`    | Внешние стандарты и регуляторные требования (ФСТЭК, ФСБ, МВД, ГОСТ).    |
-| `deployment/`    | Инфраструктурный код и автоматизация (Terraform, Ansible, Docker, K8s). |
-| `observability/` | Мониторинг и наблюдаемость (Prometheus, Grafana, ELK).                  |
-| `secrets/`       | Управление секретами: шаблоны и политики доступа.                       |
-| `third_party/`   | Сторонние зависимости: SDK и библиотеки.                                |
-| `security/`      | Политики ИБ, сканы, тестирование безопасности.                          |
-| `examples/`      | Примеры и демонстрации: quickstart и демо.                              |
-| `common/`        | Общие компоненты проекта (код, тесты, логирование, документация).       |
-| `vision-le/`     | Разные редакции продукта (Lite, Base, Pro², Pro³).                      |
-| `collaboration/` | Средства для совместной работы (чат).                                   |
-| `tools/`         | Вспомогательные скрипты и утилиты.                                      |
-| `ci/`            | Конфигурации CI/CD (GitLab, Jenkins, Azure).                            |
-| `docs/`          | Общая документация: архитектура, гайды.                                 |
+```bash
+git clone https://github.com/MaxValt-lab/Cyber_Security_Laboratory.git
+cd Cyber_Security_Laboratory
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -r requirements-dev.txt
+pre-commit install
+pre-commit run --all-files
+                           |
