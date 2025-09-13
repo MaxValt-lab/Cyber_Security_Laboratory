@@ -103,4 +103,13 @@ jobs:
               git add VERSION CHANGELOG.md
               git commit -m "chore(release): bump version and changelog"
               git tag -a v$(cat VERSION) -m "Release v$(cat VERSION)"
-              git push origin master --tags
+              git push origin master tags
+
+- name: Аудит: запуск сборки
+  run: python audit_writer.py "CI/CD: запуск сборки"
+
+- name: Проверка лицензии
+  run: make check-license
+
+- name: Аудит: проверка завершена
+  run: python audit_writer.py "CI/CD: проверка завершена"
