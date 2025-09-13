@@ -1,0 +1,6 @@
+# Цифровые подписи ключевых файлов
+
+LICENSE.md: 
+README.md:   <хэш>
+index.html:  <хэш>
+devsecops.yml: <хэш>
