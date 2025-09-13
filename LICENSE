@@ -1,34 +1,27 @@
-MIT License with Additional Terms
+# Лицензия на использование Cyber_Security_Laboratory
 
-Copyright (c) 2025 MaxValt-lab (Cyber_Security_Laboratory)
+Cyber_Security_Laboratory является коммерческой интеллектуальной собственностью MaxValt-lab.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+## Назначение
+Система предназначена исключительно для мирного гражданского применения. Её цель — обеспечение безопасности граждан, защита прав и свобод, мониторинг инфраструктуры и предотвращение угроз.
 
-1. The above copyright notice and this permission notice shall be included in all
-   copies or substantial portions of the Software.
+## Ограничения
+- Запрещено использование в военных, наступательных, репрессивных или вредоносных целях.
+- Запрещено распространение, копирование, модификация и внедрение без письменного разрешения владельца.
+- Запрещено удаление, обход или изменение условий данной лицензии.
+- Запрещено применение в проектах, нарушающих права человека, свободу личности или международные нормы.
 
-2. Any commercial use, modification, or distribution of this software must 
-   prominently display the following attribution:
-   "Based on original work by MaxValt-lab (Cyber_Security_Laboratory)"
+## Государственное использование
+Государственные органы вправе использовать систему исключительно по официальному контракту, соглашению или тендеру, с соблюдением условий лицензии и авторских прав.
 
-3. The software is provided for educational and research purposes only. Any use
-   in military or intelligence operations requires explicit written permission
-   from the copyright holder.
+## Авторские права
+Автор: Олег Журавлёв  
+Организация: MaxValt-lab  
+Дата основания: 2025  
+Все права защищены.
 
-4. All modifications or derivative works must be publicly disclosed and licensed
-   under the same terms.
+## Защита
+Любая попытка обхода, удаления или модификации лицензионных условий считается нарушением авторских прав и может повлечь юридическую ответственность.
 
-5. Patent use rights are explicitly excluded from this license.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+## Условия
+Любое использование системы без письменного разрешения считается нарушением авторских прав и может повлечь гражданскую, административную или уголовную ответственность.
