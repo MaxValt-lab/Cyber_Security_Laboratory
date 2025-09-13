@@ -44,5 +44,5 @@ make docker-run   # Запуск контейнера
 make clean        # Очистка артефактов
 make all          # Всё сразу
 
-check-license:
+	check-license:
 	python license_check.py
