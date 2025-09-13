@@ -134,8 +134,6 @@ Cyber_Security_Laboratory/
 ├── VERSION
 ├── LICENSE
 └── README.md
-🧾 Лицензия
-MIT License
 
 🤝 Контакты
 skrusich2000@gmail.com
