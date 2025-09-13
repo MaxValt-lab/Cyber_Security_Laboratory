@@ -1,12 +1,40 @@
 import hashlib
+import sys
 
 def hash_file(path):
-    with open(path, "rb") as f:
-        return hashlib.sha256(f.read()).hexdigest()
+    try:
+        with open(path, "rb") as f:
+            return hashlib.sha256(f.read()).hexdigest()
+    except FileNotFoundError:
+        print(f"[ERROR] Файл {path} не найден.")
+        sys.exit(1)
 
-def verify(path, expected_hash):
-    actual = hash_file(path)
-    if actual != expected_hash:
-        raise Exception(f"Файл {path} повреждён или изменён.")
+def load_signature(path="code-signature.txt"):
+    signatures = {}
+    try:
+        with open(path, "r") as f:
+            for line in f:
+                if ":" in line and not line.startswith("#"):
+                    file, hash_val = line.strip().split(":")
+                    signatures[file.strip()] = hash_val.strip()
+    except FileNotFoundError:
+        print("[ERROR] Файл code-signature.txt не найден.")
+        sys.exit(1)
+    return signatures
 
-verify("LICENSE.md", "3f2c8d1e9a7b4c6d8e2f1a3b9c0d7e6f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6")
+def verify_files():
+    signatures = load_signature()
+    for file, expected_hash in signatures.items():
+        actual_hash = hash_file(file)
+        if actual_hash != expected_hash:
+            print(f"[FAIL] Нарушение целостности: {file}")
+            print(f"Ожидалось: {expected_hash}")
+            print(f"Получено:  {actual_hash}")
+            sys.exit(1)
+        else:
+            print(f"[OK] {file} — проверка пройдена.")
+
+if __name__ == "__main__":
+    print("[🔐] Проверка лицензии и цифровых подписей...")
+    verify_files()
+    print("[✅] Все файлы прошли проверку.")
