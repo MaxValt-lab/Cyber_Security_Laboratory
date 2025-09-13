@@ -10,7 +10,7 @@ jobs:
   security-checks:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
     
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -47,7 +47,7 @@ jobs:
     needs: security-checks
     if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
     
     - name: Build and push Docker images
       run: |
