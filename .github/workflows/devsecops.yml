@@ -23,6 +23,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
 
+      - name: Аудит: установка окружения
+        run: python audit_writer.py "CI/CD: установка окружения"
+
   lint:
     runs-on: ubuntu-latest
     needs: setup
@@ -30,6 +33,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run ruff and mypy
         run: |
+          python audit_writer.py "CI/CD: запуск линтеров"
           ruff check .
           mypy common/src
 
@@ -40,6 +44,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run bandit and safety
         run: |
+          python audit_writer.py "CI/CD: запуск сканеров безопасности"
           bandit -r common/src
           safety check --full-report
 
@@ -50,6 +55,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run pytest
         run: |
+          python audit_writer.py "CI/CD: запуск тестов"
           pytest --cov=common/src --cov-report=term-missing
 
   sbom:
@@ -59,6 +65,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Generate SBOM
         run: |
+          python audit_writer.py "CI/CD: генерация SBOM"
           cyclonedx-py requirements -o sbom.json
       - name: Upload SBOM
         uses: actions/upload-artifact@v4
@@ -68,21 +75,26 @@ jobs:
 
   secrets:
     runs-on: ubuntu-latest
+    needs: setup
     steps:
       - uses: actions/checkout@v4
       - name: Scan secrets with Gitleaks
         uses: gitleaks/gitleaks-action@v2
         with:
           config-path: .gitleaks.toml
+      - name: Аудит: проверка секретов
+        run: python audit_writer.py "CI/CD: проверка секретов"
 
   docker:
     runs-on: ubuntu-latest
+    needs: setup
     steps:
       - uses: actions/checkout@v4
       - name: Build Docker image
         run: |
+          python audit_writer.py "CI/CD: сборка Docker"
           docker build -f deployment/docker/Dockerfile -t cyberlab:latest .
-          
+
   make:
     runs-on: ubuntu-latest
     needs: setup
@@ -90,26 +102,32 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run full Makefile pipeline
         run: |
+          python audit_writer.py "CI/CD: запуск Makefile"
           make all
-          
-          release:
-              @echo "🔢 Bumping version..."
-              python tools/bump_version.py
 
-              @echo "📜 Generating changelog..."
-              git log --pretty=format:"- %s (%h)" $(git describe --tags --abbrev=0)..HEAD > CHANGELOG.md
+  release:
+    runs-on: ubuntu-latest
+    needs: make
+    steps:
+      - uses: actions/checkout@v4
 
-              @echo "🏷 Creating tag..."
-              git add VERSION CHANGELOG.md
-              git commit -m "chore(release): bump version and changelog"
-              git tag -a v$(cat VERSION) -m "Release v$(cat VERSION)"
-              git push origin master tags
+      - name: 🔢 Bump version
+        run: |
+          python audit_writer.py "CI/CD: bump version"
+          python tools/bump_version.py
 
-- name: Аудит: запуск сборки
-  run: python audit_writer.py "CI/CD: запуск сборки"
+      - name: 📜 Generate changelog
+        run: |
+          python audit_writer.py "CI/CD: генерация CHANGELOG"
+          git log --pretty=format:"- %s (%h)" $(git describe --tags --abbrev=0)..HEAD > CHANGELOG.md
 
-- name: Проверка лицензии
-  run: make check-license
+      - name: 🏷 Create tag and push
+        run: |
+          python audit_writer.py "CI/CD: создание тега"
+          git add VERSION CHANGELOG.md
+          git commit -m "chore(release): bump version and changelog"
+          git tag -a v$(cat VERSION) -m "Release v$(cat VERSION)"
+          git push origin master --tags
 
-- name: Аудит: проверка завершена
-  run: python audit_writer.py "CI/CD: проверка завершена"
+      - name: Аудит: релиз завершён
+        run: python audit_writer.py "CI/CD: релиз завершён"
