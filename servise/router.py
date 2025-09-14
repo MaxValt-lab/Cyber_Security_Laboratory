@@ -1,10 +1,19 @@
-from fastapi import APIRouter, Request
-from models import Event
-from processor import process_event
+# servise/router.py
 
-router = APIRouter()
+from fastapi import APIRouter, HTTPException
+from .models import Event, EventResult
+from .processor import process_event
 
-@router.post("/event")
-async def receive_event(event: Event, request: Request):
-    result = process_event(event.dict())
-    return {"status": "processed", "risk_score": result["risk_score"], "action": result["action"]}
+router = APIRouter(tags=["events"])
+
+@router.get("/status")
+def status():
+    return {"status": "ok"}
+
+@router.post("/event", response_model=EventResult)
+def receive_event(event: Event):
+    try:
+        result = process_event(event.model_dump())
+        return EventResult(**result)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Processing error: {e}")
