@@ -1,0 +1,13 @@
+# Запрет доступа к конфигам
+<FilesMatch "\.(htaccess|env|ini|log|php~)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Защита директорий
+RewriteRule ^(models|lib|config|security)/ - [F,L]
+
+# Защита от прямых обращений
+<FilesMatch "\.php$">
+    SetHandler "proxy:unix:/var/run/php-fpm.sock|fcgi://localhost"
+</FilesMatch>

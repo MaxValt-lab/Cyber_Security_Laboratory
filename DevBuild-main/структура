@@ -1,0 +1,22 @@
+/DevBuild
+├── /core                  # Ядро системы
+│   ├── agentsbasepack.py  # Система регистрации и управления агентами
+│   ├── autonomous_construct.py  # Основной класс системы
+│   ├── agent_logic.py     # Базовая логика агентов
+│   ├── trigger_engine.py  # Система триггеров
+│   └── __init__.py        # Инициализация пакета
+├── /modules               # Специализированные модули
+│   ├── finance           # Финансовый модуль
+│   │   └── finance_module.py
+│   ├── security          # Модуль безопасности
+│   │   └── security_module.py
+│   └── communication     # Коммуникационный модуль
+│       └── communication_module.py
+├── /utils                # Утилиты
+│   └── utils.py
+├── /logs                 # Логи
+│   └── logs.txt
+├── /config               # Конфигурация
+│   └── config.json
+├── main.py               # Точка входа в приложение
+└── requirements.txt      # Зависимости проекта

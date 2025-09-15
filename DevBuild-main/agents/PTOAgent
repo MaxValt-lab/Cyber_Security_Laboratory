@@ -1,0 +1,210 @@
+import logging
+import json
+from datetime import datetime
+from typing import List, Dict
+
+logger = logging.getLogger("PTOAgent")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+
+class PTOAgent:
+    def __init__(
+        self,
+        smeta: List[Dict],
+        dogovor: Dict,
+        grafiki: List[Dict],
+        akts_priemki: List[Dict],
+        akts_sdachi: List[Dict],
+        protocols: List[Dict],
+        tech_tasks: List[Dict]
+    ):
+        self.smeta = smeta
+        self.dogovor = dogovor
+        self.grafiki = grafiki
+        self.akts_priemki = akts_priemki
+        self.akts_sdachi = akts_sdachi
+        self.protocols = protocols
+        self.tech_tasks = tech_tasks
+
+        self.last_checks = {
+            "budget": None,
+            "schedule": None,
+            "acceptance": None,
+            "completion": None,
+            "tech_tasks": None
+        }
+
+        self.validation_errors = []
+
+    def validate_inputs(self):
+        try:
+            if not all('cost' in item for item in self.smeta):
+                raise ValueError("Смета содержит некорректные данные")
+            if 'total_sum' not in self.dogovor:
+                raise ValueError("Договор не содержит общую сумму")
+            for task in self.grafiki:
+                if not all(key in task for key in ['name', 'planned']):
+                    raise ValueError(f"Некорректные данные в графике: {task}")
+            for act in self.akts_priemki + self.akts_sdachi:
+                if 'status' not in act:
+                    raise ValueError("Акт не содержит статус")
+        except Exception as e:
+            logger.error(f"Ошибка валидации: {str(e)}")
+            self.validation_errors.append(str(e))
+
+    def check_budget(self) -> Dict:
+        try:
+            smeta_sum = sum(item['cost'] for item in self.smeta)
+            contract_sum = self.dogovor.get('total_sum')
+            status = "normal" if smeta_sum <= contract_sum else "exceeded"
+            if status == "exceeded":
+                logger.warning(f"💸 Бюджет превышен: смета {smeta_sum}, договор {contract_sum}")
+            else:
+                logger.info("✅ Бюджет в пределах нормы")
+            result = {"status": status, "smeta": smeta_sum, "contract": contract_sum}
+            self.last_checks["budget"] = result
+            return result
+        except Exception as e:
+            logger.error(f"Ошибка при проверке бюджета: {str(e)}")
+            return {"error": str(e)}
+
+    def check_schedule(self) -> List[Dict]:
+        results = []
+        for task in self.grafiki:
+            try:
+                planned = datetime.fromisoformat(task['planned'])
+                actual_str = task.get('actual')
+                actual = datetime.fromisoformat(actual_str) if actual_str else None
+                if actual and actual > planned:
+                    delay = (actual - planned).days
+                    logger.warning(f"📉 Задержка по задаче '{task['name']}': {delay} дней")
+                    results.append({
+                        "task": task['name'],
+                        "status": "delayed",
+                        "delay_days": delay,
+                        "planned": planned.isoformat(),
+                        "actual": actual.isoformat()
+                    })
+                else:
+                    results.append({
+                        "task": task['name'],
+                        "status": "on_time",
+                        "planned": planned.isoformat(),
+                        "actual": actual.isoformat() if actual else None
+                    })
+            except Exception as e:
+                logger.error(f"Ошибка при проверке графика: {str(e)}")
+                results.append({
+                    "task": task.get('name', 'unknown'),
+                    "status": "error",
+                    "error": str(e)
+                })
+        self.last_checks["schedule"] = results
+        return results
+
+    def verify_acceptance(self) -> List[Dict]:
+        results = []
+        for act in self.akts_priemki:
+            try:
+                if not act.get('approved'):
+                    logger.warning(f"⚠️ Акт не утверждён: {act['stage']}")
+                    results.append({"stage": act['stage'], "status": "not_approved"})
+                else:
+                    results.append({"stage": act['stage'], "status": "approved"})
+            except Exception as e:
+                logger.error(f"Ошибка при проверке акта приёмки: {str(e)}")
+                results.append({"stage": act.get('stage', 'unknown'), "error": str(e)})
+        self.last_checks["acceptance"] = results
+        return results
+
+    def verify_completion(self) -> List[Dict]:
+        results = []
+        for act in self.akts_sdachi:
+            try:
+                status = act.get('status')
+                if status != 'accepted':
+                    logger.warning(f"❌ Объект не сдан: {act['stage']}")
+                results.append({"stage": act['stage'], "status": status})
+            except Exception as e:
+                logger.error(f"Ошибка при проверке акта сдачи: {str(e)}")
+                results.append({"stage": act.get('stage', 'unknown'), "error": str(e)})
+        self.last_checks["completion"] = results
+        return results
+
+    def match_tech_tasks(self) -> List[Dict]:
+        results = []
+        for task in self.tech_tasks:
+            try:
+                if not task.get('completed'):
+                    logger.warning(f"🔧 Не выполнено ТЗ: {task['description']}")
+                    results.append({"description": task['description'], "status": "not_completed"})
+                else:
+                    results.append({"description": task['description'], "status": "completed"})
+            except Exception as e:
+                logger.error(f"Ошибка при проверке ТЗ: {str(e)}")
+                results.append({"description": task.get('description', 'unknown'), "error": str(e)})
+        self.last_checks["tech_tasks"] = results
+        return results
+
+    def generate_full_report(self) -> Dict:
+        logger.info("📋 Формирование отчёта ПТО")
+        report = {
+            "timestamp": datetime.now().isoformat(),
+            "budget": self.check_budget(),
+            "schedule": self.check_schedule(),
+            "acceptance": self.verify_acceptance(),
+            "completion": self.verify_completion(),
+            "tech_tasks": self.match_tech_tasks(),
+            "validation_errors": self.validation_errors
+        }
+
+        critical_issues = (
+            report['budget'].get('status') == 'exceeded' or
+            any(task.get('status') == 'delayed' for task in report['schedule']) or
+            any(act.get('status') == 'not_approved' for act in report['acceptance']) or
+            any(act.get('status') != 'accepted' for act in report['completion']) or
+            any(task.get('status') == 'not_completed' for task in report['tech_tasks'])
+        )
+
+        if critical_issues:
+            logger.warning("⚠️ Обнаружены критические проблемы в проекте")
+        else:
+            logger.info("✅ Проект в норме")
+
+        return report
+
+    def save_report(self, report: Dict, filename: str = "pto_report.json"):
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump(report, f, ensure_ascii=False, indent=4)
+            logger.info(f"Отчёт сохранён в файл {filename}")
+        except Exception as e:
+            logger.error(f"Ошибка при сохранении отчёта: {str(e)}")
+
+    def get_critical_issues(self) -> List[str]:
+        issues = []
+        budget = self.last_checks.get('budget', {})
+        if budget.get('status') == 'exceeded':
+            issues.append("Превышение бюджета")
+
+        for task in self.last_checks.get('schedule', []):
+            if task.get('status') == 'delayed':
+                issues.append(f"Задержка: {task.get('task')}")
+
+        for act in self.last_checks.get('acceptance', []):
+            if act.get('status') == 'not_approved':
+                issues.append(f"Акт не утверждён: {act.get('stage')}")
+
+        for act in self.last_checks.get('completion', []):
+            if act.get('status') != 'accepted':
+                issues.append(f"Объект не сдан: {act.get('stage')}")
+
+        for task in self.last_checks.get('tech_tasks', []):
+            if task.get('status') == 'not_completed':
+                issues.append(f"Не выполнено ТЗ: {task.get('description')}")
+
+        return issues
+
+    def notify_about_issues(self):
+        issues = self.get_critical_issues()
+        if issues:
+            logger.warning(f"Обнаружены критические проблемы: {

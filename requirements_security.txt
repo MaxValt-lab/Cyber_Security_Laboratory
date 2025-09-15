@@ -1,0 +1,15 @@
+cryptography==41.0.7
+psutil==5.9.6
+PyJWT==2.8.0
+flask==3.0.0
+sqlite3
+hashlib
+base64
+threading
+logging
+datetime
+json
+os
+shutil
+subprocess
+time
