@@ -1,0 +1,13 @@
+# servise/__init__.py
+
+"""
+Cyber Security Laboratory — сервис обработки событий безопасности.
+Состав:
+- main.py: точка входа FastAPI
+- router.py: маршруты API
+- processor.py: обработка событий
+- models.py: типы данных
+- config.py: настройки
+- client.py: уведомления
+"""
+__all__ = ["main", "router", "processor", "models", "config", "client"]

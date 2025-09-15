@@ -1,0 +1,17 @@
+include README.md
+include LICENSE
+include LICENSE.md
+include VERSION
+include requirements.txt
+include requirements-dev.txt
+include .env.example
+recursive-include common/i18n *.json
+recursive-include compliance *.json
+recursive-include deployment *.yml *.yaml *.tf
+recursive-include observability *.yml *.yaml
+recursive-include tools *.json
+recursive-include vision-le/*/i18n *.json
+global-exclude *.pyc
+global-exclude __pycache__
+global-exclude .git*
+global-exclude *.log

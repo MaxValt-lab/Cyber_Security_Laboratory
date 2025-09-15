@@ -1,0 +1,101 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+log/
+
+# Database
+*.db
+*.sqlite3
+
+# Secrets
+secrets/
+*.key
+*.pem
+*.cert
+
+# Dependencies
+node_modules/
+jspm_packages/
+
+# Distribution
+dist/
+build/
+
+# Docker
+.docker/
+
+# Tests
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Operating System
+.DS_Store
+Thumbs.db
+
+# Custom project ignores
+models/*.weights
+*.model
+temp/
+.cache/
+# 🧪 Безопасность и артефакты сканеров
+sbom.json
+gitleaks-report.json
+safety-report.json
+bandit.json
+
+# 📄 Документация и временные файлы
+*.pdf
+*.docx
+*.pptx
+*.bak
+*.tmp
+
+# 🧪 Jupyter notebooks
+*.ipynb
+.ipynb_checkpoints/
+
+# 🧰 CI/DevOps мусор
+*.retry
+*.lock
+*.seed
+*.pid
+*.orig
+
+# 🧠 Mermaid и визуализация
+*.mmd
+*.svg
