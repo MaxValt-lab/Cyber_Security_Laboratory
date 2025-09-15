@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Security Laboratory - Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { background: #2c3e50; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+        .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-warning { background: #f39c12; color: white; }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-info { background: #3498db; color: white; }
+        .btn:hover { opacity: 0.8; }
+        .send-event { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .form-group { margin: 15px 0; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .stat-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .stat-value { font-size: 2em; font-weight: bold; color: #3498db; }
+        .events { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .event-item { padding: 10px; border-left: 4px solid #3498db; margin: 10px 0; background: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Cyber Security Laboratory</h1>
+            <p>Система мониторинга безопасности</p>
+            <div class="btn-group">
+                <button class="btn btn-info" onclick="loadData()">Обновить</button>
+                <button class="btn btn-success" onclick="testConnection()">Тест</button>
+                <button class="btn btn-warning" onclick="exportData()">Экспорт</button>
+            </div>
+        </div>
+        
+        <div class="send-event">
+            <h2>Отправить событие</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <div class="form-group">
+                    <label>Тип:</label>
+                    <select id="eventType">
+                        <option value="login_attempt">Попытка входа</option>
+                        <option value="file_access">Доступ к файлу</option>
+                        <option value="network_scan">Сканирование</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Источник:</label>
+                    <select id="eventSource">
+                        <option value="external">Внешний</option>
+                        <option value="internal">Внутренний</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Критичность:</label>
+                    <select id="eventSeverity">
+                        <option value="medium">Средняя</option>
+                        <option value="high">Высокая</option>
+                        <option value="critical">Критическая</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Сообщение:</label>
+                    <input type="text" id="eventMessage" placeholder="Описание события">
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-success" onclick="sendEvent()">Отправить</button>
+                <button class="btn btn-info" onclick="sendTestEvent()">Тест</button>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalEvents">-</div>
+                <div>События</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalIncidents">-</div>
+                <div>Инциденты</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgRisk">-</div>
+                <div>Средний риск</div>
+            </div>
+        </div>
+        
+        <div class="events">
+            <h2>Последние события</h2>
+            <div id="eventsList">Загрузка...</div>
+        </div>
+    </div>
+
+    <script>
+        async function loadData() {
+            try {
+                const stats = await fetch('/api/stats').then(r => r.json());
+                document.getElementById('totalEvents').textContent = stats.total_events || 0;
+                document.getElementById('totalIncidents').textContent = stats.total_incidents || 0;
+                document.getElementById('avgRisk').textContent = stats.average_risk_score || 0;
+                
+                const events = await fetch('/api/events?limit=10').then(r => r.json());
+                document.getElementById('eventsList').innerHTML = (events.events || []).map(event => 
+                    `<div class="event-item">${event[5]} (Риск: ${event[6]})</div>`
+                ).join('') || 'Нет событий';
+            } catch (error) {
+                console.error('Ошибка:', error);
+            }
+        }
+        
+        async function sendEvent() {
+            const eventData = {
+                type: document.getElementById('eventType').value,
+                source: document.getElementById('eventSource').value,
+                severity: document.getElementById('eventSeverity').value,
+                message: document.getElementById('eventMessage').value || 'Тестовое событие'
+            };
+            
+            try {
+                const result = await fetch('/api/event', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(eventData)
+                }).then(r => r.json());
+                
+                alert(`Событие отправлено! Риск: ${result.risk_score}`);
+                loadData();
+            } catch (error) {
+                alert('Ошибка: ' + error.message);
+            }
+        }
+        
+        async function sendTestEvent() {
+            await sendEvent();
+        }
+        
+        async function testConnection() {
+            try {
+                const result = await fetch('/api/status').then(r => r.json());
+                alert(`Статус: ${result.status}`);
+            } catch (error) {
+                alert('Ошибка соединения');
+            }
+        }
+        
+        function exportData() {
+            alert('Экспорт в разработке');
+        }
+        
+        loadData();
+        setInterval(loadData, 30000);
+    </script>
+</body>
+</html>
