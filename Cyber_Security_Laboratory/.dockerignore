@@ -1,0 +1,65 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.pytest_cache
+htmlcov
+
+# Virtual environments
+.venv
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Tests
+test/
+tests/
+*_test.py
+test_*.py
+
+# Development
+.env
+.env.local
+.env.development
+.env.test
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Security reports
+bandit.json
+safety-report.json
+gitleaks-report.json
+sbom.json

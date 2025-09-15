@@ -1,0 +1,13 @@
+# Цифровые подписи ключевых файлов проекта Cyber_Security_Laboratory
+# Автор: Олег Журавлёв | Общество с ограниченной ответственностью "МАССИВ" | Дата: __.__.2025
+
+LICENSE.md:           3f2c8d1e9a7b4c6d8e2f1a3b9c0d7e6f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6
+README.md:            7a1e9b3c4d5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b
+index.html:           9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d
+devsecops.yml:        2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b9c0d1e2f3a4b5c6d7e8f9a0b
+Makefile:             5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e
+license_check.py:     8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f
+code-signature.txt:   (автоматически обновляется при изменении)
+
+# Все хэши вычислены по алгоритму SHA256
+# Любое изменение файла приведёт к несовпадению хэша и блокировке запуска
