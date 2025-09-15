@@ -1,0 +1,246 @@
+from core.base_agent import BaseAgent
+from core.trigger_engine import TriggerMetadata
+import logging
+from datetime import datetime, timedelta
+from typing import Dict, Any, List
+
+logger = logging.getLogger("AnalyticsAgent")
+
+class AnalyticsAgent(BaseAgent):
+    def __init__(self, engine):
+        super().__init__("AnalyticsAgent", engine)
+        
+        self.analysis_threshold = 0.8
+        self.analysis_interval = timedelta(hours=24)
+        self.last_analysis_time = datetime.min
+        self.analysis_results: Dict[str, Any] = {}
+
+        self.register_trigger(
+            TriggerMetadata(name="analyze_financials", priority=10, group="analytics"),
+            self.should_analyze,
+            self.perform_analysis
+        )
+
+        self.register_trigger(
+            TriggerMetadata(name="periodic_analysis", priority=5, group="analytics"),
+            self.should_periodic_analysis,
+            self.perform_periodic_analysis
+        )
+
+    def should_analyze(self) -> bool:
+        balance = self.state.get("balance", 0)
+        expenses = self.state.get("expenses", 0)
+        return balance < self.analysis_threshold * expenses
+
+    def should_periodic_analysis(self) -> bool:
+        return datetime.now() - self.last_analysis_time > self.analysis_interval
+
+    def perform_analysis(self):
+        try:
+            self.last_analysis_time = datetime.now()
+            balance = self.state.get("balance", 0)
+            expenses = self.state.get("expenses", 0)
+
+            self.analysis_results = {
+                "timestamp": self.last_analysis_time,
+                "balance": balance,
+                "expenses": expenses,
+                "ratio": balance / expenses if expenses != 0 else 0,
+                "status": "critical" if balance < self.analysis_threshold * expenses else "normal"
+            }
+
+            if self.analysis_results["status"] == "critical":
+                logger.warning(
+                    f"[{self.name}] ⚠️ Критическое состояние: "
+                    f"Баланс ({balance}) ниже расходов ({expenses}). "
+                    f"Рекомендуется срочный пересмотр бюджета."
+                )
+                self.notify_agents("FinanceAgent", "PTOAgent", "budget_alert")
+            else:
+                logger.info(
+                    f"[{self.name}] 📊 Баланс ({balance}) в норме относительно расходов ({expenses})"
+                )
+
+            self.save_analysis_results()
+
+        except Exception as e:
+            logger.error(f"[{self.name}] Ошибка при выполнении анализа: {str(e)}")
+
+    def perform_periodic_analysis(self):
+        try:
+            self.last_analysis_time = datetime.now()
+            balance = self.state.get("balance", 0)
+            expenses = self.state.get("expenses", 0)
+            income = self.state.get("income", 0)
+
+            self.analysis_results = {
+                "timestamp": self.last_analysis_time,
+                "balance": balance,
+                "expenses": expenses,
+                "income": income,
+                "balance_ratio": balance / expenses if expenses != 0 else 0,
+                "income_ratio": income / expenses if expenses != 0 else 0,
+                "status": "normal"
+            }
+
+            if balance < self.analysis_threshold * expenses:
+                self.analysis_results["status"] = "warning"
+                logger.warning(
+                    f"{self.name} ⚠️ Предупреждение: "
+                    f"Баланс ({balance}) ниже {self.analysis_threshold*100}% от расходов ({expenses})"
+                )
+            elif balance < 0.5 * expenses:
+                self.analysis_results["status"] = "critical"
+                logger.critical(
+                    f"{self.name} 🚨 Критическое состояние: "
+                    f"Баланс ({balance}) критически низкий относительно расходов ({expenses})"
+                )
+                self.notify_agents("FinanceAgent", "PTOAgent", "critical_budget_alert")
+            else:
+                logger.info(
+                    f"{self.name} 📊 Баланс ({balance}) в норме относительно расходов ({expenses})"
+                )
+
+            self.save_analysis_results()
+            self.update_recommendations()
+
+        except Exception as e:
+            logger.error(f"{self.name} Ошибка при выполнении периодического анализа: {str(e)}")
+
+    def save_analysis_results(self):
+        try:
+            self.persist_data("analysis_results", self.analysis_results)
+            logger.debug(f"{self.name} Результаты анализа сохранены")
+        except Exception as e:
+            logger.error(f"{self.name} Ошибка при сохранении результатов анализа: {str(e)}")
+
+    def update_recommendations(self):
+        try:
+            if self.analysis_results["status"] == "critical":
+                self.state["recommendations"] = {
+                    "reduce_expenses": True,
+                    "increase_income": True,
+                    "freeze_non_essential": True
+                }
+            elif self.analysis_results["status"] == "warning":
+                self.state["recommendations"] = {
+                    "reduce_expenses": True,
+                    "monitor_spending": True
+                }
+            else:
+                self.state["recommendations"] = {
+                    "maintain_current": True
+                }
+
+            self.persist_state()
+            logger.info(f"{self.name} Рекомендации обновлены")
+        except Exception as e:
+            logger.error(f"{self.name} Ошибка при обновлении рекомендаций: {str(e)}")
+
+    def get_current_status(self) -> Dict:
+        return {
+            "last_analysis": self.last_analysis_time,
+            "current_status": self.analysis_results.get("status", "unknown"),
+            "recommendations": self.state.get("recommendations", {})
+        }
+
+    def set_analysis_threshold(self, threshold: float):
+        if 0 < threshold <= 1:
+            self.analysis_threshold = threshold
+            logger.info(f"{self.name} Пороговое значение установлено на {threshold*100}%")
+        else:
+            logger.warning(f"{self.name} Неверное значение порога: {threshold}")
+
+    def set_analysis_interval(self, interval: timedelta):
+        if interval > timedelta(minutes=1):
+            self.analysis_interval = interval
+            logger.info(f"{self.name} Интервал анализа установлен на {interval}")
+        else:
+            logger.warning(f"{self.name} Слишком короткий интервал: {interval}")
+
+    def notify_agents(self, *agent_names: str, message: str):
+        for agent_name in agent_names:
+            agent = self.engine.get_agent(agent_name)
+            if agent:
+                agent.receive_message(message, self.analysis_results)
+                logger.info(f"{self.name} Отправлено уведомление агенту {agent_name}")
+            else:
+                logger.warning(f"{self.name} Агент {agent_name} не найден")
+
+    def receive_message(self, message: str, data: Dict):
+        if message == "budget_update":
+            logger.info(f"{self.name} Получено обновление бюджета: {data}")
+            self.state.update(data)
+            self.trigger_trigger("analyze_financials")
+        elif message == "analysis_request":
+            logger.info(f"{self.name} Получен запрос на анализ")
+            self.perform_analysis()
+        elif message == "threshold_update":
+            new_threshold = data.get("threshold")
+            if new_threshold:
+                self.set_analysis_threshold(new_threshold)
+        elif message == "interval_update":
+            new_interval = data.get("interval")
+            if new_interval:
+                self.set_analysis_interval(timedelta(seconds=new_interval))
+        else:
+            logger.warning(f"{self.name} Неизвестное сообщение: {message}")
+
+    def get_detailed_report(self) -> Dict:
+        return {
+            "agent": self.name,
+            "timestamp": datetime.now(),
+            "financial_status": self.analysis_results,
+            "recommendations": self.state.get("recommendations", {}),
+            "settings": {
+                "analysis_threshold": self.analysis_threshold,
+                "analysis_interval": str(self.analysis_interval)
+            }
+        }
+
+    def reset_analysis(self):
+        self.last_analysis_time = datetime.min
+        self.analysis_results = {}
+        logger.info(f"{self.name} Анализ сброшен")
+
+    def get_historical_data(self) -> List[Dict]:
+        try:
+            return self.load_data("analysis_results_history")
+        except Exception as e:
+            logger.error(f"{self.name} Ошибка при получении исторических данных: {str(e)}")
+            return []
+
+    def save_historical_data(self, data: Dict):
+        try:
+            history = self.load_data("analysis_results_history", default=[])
+            history.append({
+                "timestamp": datetime.now(),
+                "results": data
+            })
+            self.persist_data("analysis_results_history", history)
+            logger.debug(f"{self.name} Исторические данные сохранены")
+        except Exception as e:
+            logger.error(f"{self.name} Ошибка при сохранении исторических данных: {str(e)}")
+
+    def analyze_trends(self):
+        try:
+            history = self.get_historical_data()
+            if len(history) < 2:
+                logger.info(f"{self.name} Недостаточно данных для анализа трендов")
+                return
+
+            trends = {
+                "balance_trend": "stable",
+                "expenses_trend": "stable",
+                "status_trend": "stable"
+            }
+
+            self.state["trends"] = trends
+            self.persist_state()
+            logger.info(f"{self.name} Тренды проанализированы: {trends}")
+        except Exception as e:
+            logger.error(f"{self.name} Ошибка при анализе трендов: {str(e)}")
+
+    def __str__(self):
+        return (
+            f"AnalyticsAgent [
