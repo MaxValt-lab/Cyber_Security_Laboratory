@@ -1,0 +1,19 @@
+[2025-09-13 13:25:00] | Risk: 75 | Message: Unauthorized access attempt detected
+Type: intrusion | Source: external | Severity: high
+Action: Blocked IP, notified admin
+Hash: 3a1f9c7e2b4d8a9f0c1e6d3a9b2e7d4f1c8a6f9e3d2c1b0a7e9f3d1c2b4a6f7e
+
+[2025-09-13 13:26:12] | Risk: 62 | Message: Suspicious file modification in /etc/passwd
+Type: integrity_violation | Source: internal | Severity: high
+Action: Logged event, triggered forensic snapshot
+Hash: 9b2e7d4f1c8a6f9e3d2c1b0a7e9f3d1c2b4a6f7e3a1f9c7e2b4d8a9f0c1e6d3a
+
+[2025-09-13 13:27:45] | Risk: 58 | Message: Multiple failed login attempts from 192.168.1.45
+Type: brute_force | Source: external | Severity: medium
+Action: Rate-limited IP, alert queued
+Hash: 1c2b4a6f7e3a1f9c7e2b4d8a9f0c1e6d3a9b2e7d4f1c8a6f9e3d2c1b0a7e9f3d
+
+[2025-09-13 13:29:03] | Risk: 81 | Message: Privilege escalation detected in container runtime
+Type: privilege_escalation | Source: internal | Severity: critical
+Action: Container paused, audit triggered
+Hash: f7e3a1f9c7e2b4d8a9f0c1e6d3a9b2e7d4f1c8a6f9e3d2c1b0a7e9f3d1c2b4a6
