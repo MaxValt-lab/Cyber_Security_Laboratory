@@ -100,4 +100,4 @@ CyberSecurity_Lab/
 
 ## 📄 Лицензия
 
-MIT License
+Custom
